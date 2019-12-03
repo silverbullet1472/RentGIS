@@ -1,59 +1,68 @@
 import requests
 from bs4 import BeautifulSoup
 import time
+import psycopg2
 
 
 def get_ip():
-    headers = {
-    'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Mobile Safari/537.36'
-    }
-    url = 'https://www.xicidaili.com/nn/1'
-    try:
-        res = requests.get(url, timeout=5, headers=headers)
-    except Exception as e:
-        print("IpCollector:get_ip:UrlRequest:" + str(e))
-        print("IpCollector:get_ip:UrlRequest:Restart Get Ip!")
-        time.sleep(3)
-        get_ip()
-    else:
-        soup = BeautifulSoup(res.text, 'lxml')
-        ips = soup.select('#ip_list tr')
-        f = open('ip_proxy_original.txt', 'w')
-        for i in ips:
-            try:
-                ipp = i.select('td')
-                ip = ipp[1].text
-                host = ipp[2].text
-                type = ipp[5].text
-                f.write(ip + ',' + host + ',' + type + '\n')
-                print("IpCollector:get_ip:this ip succeeded")
-            except Exception as e:
-                print("IpCollector:get_ip:InfoExtraction:" + str(e))
-        f.close()
-    print("IpCollector:get_ip:finished!")
-
-
-def check_ip():
-    url = 'https://www.baidu.com'
-    fr = open('ip_proxy_original.txt', 'r')
-    ips = fr.readlines()
-    fr.close()
-    fw = open('ip_proxy_checked.txt', 'w')
-    for p in ips:
-        ip = p.strip('\n').split(',')
-        proxy = {ip[2]: ip[2] + '://' + ip[0] + ':' + ip[1]}
+    # 通过connect方法创建数据库连接
+    conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
+    # 创建cursor以访问数据库
+    cur = conn.cursor()
+    cur.execute("delete from proxy")
+    # 提交事务
+    conn.commit()
+    # 关闭连接
+    conn.close()
+    for i in range(1, 6):
+        # 通过connect方法创建数据库连接
+        conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
+        # 创建cursor以访问数据库
+        cur = conn.cursor()
+        url = 'https://www.xicidaili.com/nn/' + str(i)
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Mobile Safari/537.36'
+        }
         try:
-            res = requests.get(url, proxies=proxy, timeout=3)
+            ip_res = requests.get(url, timeout=3, headers=headers)
         except Exception as e:
-            print("IpCollector:check_ip:this ip failed!" + str(e))
+            print("get_ip:UrlRequest:" + str(e))
+            print("get_ip:UrlRequest:ip_restart Get Ip!")
+            time.sleep(0.5)
+            get_ip()
         else:
-            if res.status_code == 200:
-                print("IpCollector:check_ip:this ip succeeded!")
-                fw.write(p)
-    fw.close()
-    print("IpCollector:check_ip:finished!")
+            soup = BeautifulSoup(ip_res.text, 'lxml')
+            ips = soup.select('#ip_list tr')
+            for i in ips:
+                # 解析代理信息
+                try:
+                    ipp = i.select('td')
+                    ip = ipp[1].text
+                    port = ipp[2].text
+                    type = ipp[5].text
+                    print("get_ip:succeeded:" + ip)
+                except Exception as e:
+                    print("get_ip:InfoExtraction:" + str(e))
+                # 测试代理
+                else:
+                    try:
+                        test_url = 'https://www.baidu.com'
+                        proxy = {type: type + '://' + ip + ':' + port}
+                        test_res = requests.get(test_url, proxies=proxy, timeout=3)
+                    except Exception as e:
+                        print("check_ip:failed:" + str(e))
+                    else:
+                        if test_res.status_code == 200:
+                            cur.execute("insert into proxy (proxy_ip,proxy_port,proxy_type) values(%s,%s,%s)",
+                                        (ip, port, type))
+                            print("check_ip:succeeded & inserted:" + ip)
+                        else:
+                            print("check_ip:failed:can not connect to Baidu")
+            # 提交事务
+            conn.commit()
+            # 关闭连接
+            conn.close()
 
 
 if __name__ == "__main__":
     get_ip()
-    check_ip()
