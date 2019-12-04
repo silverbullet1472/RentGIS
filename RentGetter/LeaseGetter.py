@@ -3,10 +3,11 @@ import requests
 import os
 from bs4 import BeautifulSoup
 import time
+import re
 
-community_attr_key_list = ['小区名称', '小区房价', '小区房价增长率', '区域商圈', '详细地址：', '建筑类型', '物业费用',
-                           '产权类别', '容积率', '总户数', '绿化率', '建筑年代', '停车位', '开发商', '物业公司',
-                           '在租房源数', '在售房源数', '城市', '一级区域', '二级区域']
+community_key = ["小区名称", "帖数", "小区房价", "小区房价增长率", "区域商圈", "详细地址", "建筑类型", "物业费用", "产权类别", "容积率", "总户数", "绿化率", "建筑年代",
+                  "停车位", "开发商", "物业公司", "在租房源", "在售房源"]
+house_key = ["标题描述", "房租", "整租合租", "面积", "户型", "朝向", "装修情况", "楼层", "所在地址", "个人/经纪人", "房屋描述"]
 
 
 def get_proxy():
@@ -75,14 +76,26 @@ def get_community(city):
         for second in second_list:
             next_href = second[0]
             page = 0
+            # 进入一个二级区域，开始爬取直到页面最后
             while True:
                 page += 1
                 post_list_r = request(next_href)
                 post_list_bs = BeautifulSoup(post_list_r.text, 'lxml')
-                # 链接列表
+                # 获取到这一页所有发布信息的详情页链接
                 post_list = [[x['href'], x.get_text(strip=True)] for x in
                              post_list_bs.select('.ershoufang-list .title a')]
                 print(post_list)
+                # 进入每一条信息详情页
+                for post in post_list:
+                    house_r = request(post[0])
+                    house_bs = BeautifulSoup(house_r.text, 'lxml')
+                    # 标题及房价
+                    house_title = re.sub(r'\s+', ' ', house_bs.select_one('.card-top .card-title').text).strip()
+                    house_price = re.sub(r'\s+', ' ', house_bs.select_one('span.price').text)
+                    # 整租 面积 朝向 楼层 装修
+                    house_value_list1 = [re.sub(r'\s+', ' ', x.get_text(strip=True)) for x in house_bs.select('li.item.f-fl .content')]
+                    house_value_list = [house_title, house_price] + [house_value_list1[0]] + re.split(r'\s+', house_value_list1[1]) + house_value_list1[2:]
+                    print(house_value_list)
                 next = post_list_bs.find('a', text='下一页')
                 if next is None:
                     break
