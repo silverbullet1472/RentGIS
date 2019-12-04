@@ -35,11 +35,11 @@ def request(url):
     while True:
         try:
             r = requests.get(url, timeout=3, headers=headers, proxies=get_proxy())
-            while r.text.strip() == '':
-                print('请求内容为空，重新请求')
+            while (r.text.strip() == '') or ('Forbidden'in r.text):
+                print('请求结果不含所需信息')
                 time.sleep(0.3)
                 r = requests.get(url, timeout=3, headers=headers, proxies=get_proxy())
-            while '访问过于频繁' in r.text:
+            while '访问过于频繁' in r.text :
                 print(url)
                 print('程序暂停，请访问链接进行人机验证！')
                 os.system("pause")
@@ -79,6 +79,7 @@ def get_community(city):
             # 进入一个二级区域，开始爬取直到页面最后
             while True:
                 page += 1
+                print(f'开始第{page}页爬取')
                 post_list_r = request(next_href)
                 post_list_bs = BeautifulSoup(post_list_r.text, 'lxml')
                 # 获取到这一页所有发布信息的详情页链接
@@ -100,7 +101,6 @@ def get_community(city):
                 if next is None:
                     break
                 next_href = next['href']
-                print(f'开始第{page}页爬取')
 
 
 if __name__ == "__main__":
