@@ -5,9 +5,9 @@ from bs4 import BeautifulSoup
 import time
 import re
 
-community_key = ["小区名称", "帖数", "小区房价", "小区房价增长率", "区域商圈", "详细地址", "建筑类型", "物业费用", "产权类别", "容积率", "总户数", "绿化率", "建筑年代",
+community_key = ["小区名称", "小区房价", "小区房价增长率", "区域商圈", "详细地址", "建筑类型", "物业费用", "产权类别", "容积率", "总户数", "绿化率", "建筑年代",
                   "停车位", "开发商", "物业公司", "在租房源", "在售房源"]
-house_key = ["标题描述", "房租", "整租合租", "面积", "户型", "朝向", "装修情况", "楼层", "所在地址", "个人/经纪人", "房屋描述"]
+house_key = ["标题描述", "房租", "整租合租", "面积", "户型", "朝向", "装修情况", "楼层", "小区名称","帖数","所在地址", "个人/经纪人", "房屋描述"]
 
 
 def get_proxy():
@@ -96,6 +96,22 @@ def get_community(city):
                     # 整租 面积 朝向 楼层 装修
                     house_value_list1 = [re.sub(r'\s+', ' ', x.get_text(strip=True)) for x in house_bs.select('li.item.f-fl .content')]
                     house_value_list = [house_title, house_price] + [house_value_list1[0]] + re.split(r'\s+', house_value_list1[1]) + house_value_list1[2:]
+                    # 小区名称 链接
+                    community_link_node = house_bs.select_one('.er-item .content a')
+                    if community_link_node:
+                        community_link = community_link_node['href']
+                        community_name = community_link_node.get_text(strip=True)
+                        # 帖数
+                        house_value_list2 = house_bs.select('.er-item .content')
+                        post_num = re.findall(r'\d+', house_value_list2[0].get_text(strip=True))[0]
+                        house_address = re.sub(r'\s+', '', house_value_list2[2].text)
+                    else:
+                        house_value_list3 = house_bs.select('.er-item .content')
+                        post_num = 'unknown'
+                        community_name = house_value_list3[0].get_text(strip=True)
+                        house_address = re.sub(r'\s+', '', house_value_list3[2].text)
+                    agent = "company" if house_bs.select_one('.user-info-top .license_box') else "individual"
+                    house_value_list.extend([community_name, post_num, house_address, agent])
                     print(house_value_list)
                 next = post_list_bs.find('a', text='下一页')
                 if next is None:
