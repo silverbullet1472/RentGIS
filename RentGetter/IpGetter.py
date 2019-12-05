@@ -46,7 +46,7 @@ def get_ip():
                 # 测试代理
                 else:
                     try:
-                        test_url = 'https://www.baidu.com'
+                        test_url = 'http://www.ganji.com/index.htm'
                         proxy = {type: type + '://' + ip + ':' + port}
                         test_res = requests.get(test_url, proxies=proxy, timeout=3)
                     except Exception as e:
@@ -57,7 +57,7 @@ def get_ip():
                                         (ip, port, type))
                             print("check_ip:succeeded & inserted:" + ip)
                         else:
-                            print("check_ip:failed:can not connect to Baidu")
+                            print("check_ip:failed:can not connect to Ganji")
             # 提交事务
             conn.commit()
             # 关闭连接
