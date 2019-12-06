@@ -6,7 +6,7 @@ import time
 import re
 
 # community_key = ["小区名称", "小区均价", "小区房价增长率", "区域商圈", "详细地址", "建筑类型", "物业费用", "产权类别", "容积率", "总户数", "绿化率", "建筑年代", "停车位", "开发商", "物业公司", "在租房源", "在售房源", "帖数"]
-# house_key = ["标题", "房租", "户型", "整租合租", "面积", "朝向", "楼层", "装修", "小区名称", "详细地址", "个人/经纪人", "房屋描述"]
+# house_key = ["标题 总价 单价 户型 面积 朝向 楼层 建筑年代 产权 装修 小区名称  详细地址 个人经纪人 房屋描述"]
 
 
 def get_proxy():
@@ -53,20 +53,20 @@ def request(url):
             print('获取页面内容时出错了')
 
 
-def get_lease(city, db_code):
+def get_sale(city, db_code):
     # 创建数据库连接
     conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
     conn.autocommit = True
     cur = conn.cursor()
-    cur.execute(f"delete from {db_code}_lease_house")
-    cur.execute(f"delete from {db_code}_lease_community")
+    cur.execute(f"delete from {db_code}_sale_house")
+    cur.execute(f"delete from {db_code}_sale_community")
     # 进入城市选择页面
     index_r = request('http://www.ganji.com/index.htm')
     index_bs = BeautifulSoup(index_r.text, 'lxml')
     city_href = index_bs.find('a', text=city)['href']
     print(city_href)
     # 进入城市一级区域链接
-    city_r = request(city_href + '/zufang/')
+    city_r = request(city_href + '/ershoufang/')
     city_bs = BeautifulSoup(city_r.text, 'lxml')
     first_list = [[x['href'] + 'pn1', x.get_text(strip=True)] for x in city_bs.select('.thr-list a')][1:]
     print(first_list)
@@ -95,16 +95,16 @@ def get_lease(city, db_code):
                 print(post_list)
                 house_value_table = []
                 community_value_table = []
-                # 进入每一条信息详情页
                 for post in post_list:
                     house_r = request(post[0])
                     house_bs = BeautifulSoup(house_r.text, 'lxml')
-                    # 标题及房价
+                    # 标题 总价 单价
                     house_title = re.sub(r'\s+', ' ', house_bs.select_one('.card-top .card-title').get_text(strip=True))
-                    house_price = re.sub(r'\s+', ' ', house_bs.select_one('span.price').get_text(strip=True))
-                    # 户型 整租 面积 朝向 楼层 装修
+                    house_total = re.sub(r'\s+', ' ', house_bs.select_one('span.price').get_text(strip=True))
+                    house_unit = re.sub(r'[|\s+]', '', house_bs.select_one('span.unit').get_text(strip=True))
+                    # 户型 面积 朝向 楼层 建筑年代 产权 装修
                     house_value_list1 = [re.sub(r'\s+', ' ', x.get_text(strip=True)) for x in house_bs.select('li.item.f-fl .content')]
-                    house_value_list = [city, first_name, second_name] + [house_title, house_price] + [house_value_list1[0]] + re.split(r'\s+', house_value_list1[1]) + house_value_list1[2:]
+                    house_value_list = [city, first_name, second_name] + [house_title, house_total, house_unit] + house_value_list1
                     # 小区名称 链接
                     community_link_node = house_bs.select_one('.er-item .content a')
                     if community_link_node:
@@ -118,7 +118,7 @@ def get_lease(city, db_code):
                         except Exception as e:
                             post_num = 'unknown'
                             print("正则提取时出错:" + str(e))
-                        house_address = re.sub(r'\s+', '', house_value_list2[2].text)
+                        house_address = re.sub(r'\s+', '', house_value_list2[1].text)
                         if community_name not in community_name_list:
                             community_name_list.append(community_name)
                             # 进入小区详情页面
@@ -156,18 +156,18 @@ def get_lease(city, db_code):
                         house_value_list3 = house_bs.select('.er-item .content')
                         # 小区名称 详细地址
                         community_name = house_value_list3[0].get_text(strip=True)
-                        house_address = re.sub(r'\s+', '', house_value_list3[2].text)
+                        house_address = re.sub(r'\s+', '', house_value_list3[1].text)
                     # 经纪人/个人 房屋描述
                     agent = "company" if house_bs.select_one('.user-info-top .license_box') else "individual"
                     house_comment = re.sub(r'\s+', ' ', house_bs.select_one('.describe .item').get_text(strip=True))
-                    # 房屋属性列表 ["标题", "房租", "户型", "整租合租", "面积", "朝向","楼层", "装修", "小区名称", "详细地址", "个人/经纪人", "房屋描述"]
+                    # 房屋属性列表 ["标题", "总价", "单价", "户型", "面积", "朝向", "楼层", "建筑年代", "产权", "装修", "小区名称", "详细地址", "个人/经纪人", "房屋描述"]
                     house_value_list = house_value_list + [community_name, house_address, agent, house_comment]
                     print(house_value_list)
                     house_value_table.append(house_value_list)
                 print(house_value_table)
                 print(community_value_table)
-                cur.executemany(f"insert into {db_code}_lease_house values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", house_value_table)
-                cur.executemany(f"insert into {db_code}_lease_community values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", community_value_table)
+                cur.executemany(f"insert into {db_code}_sale_house values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", house_value_table)
+                cur.executemany(f"insert into {db_code}_sale_community values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", community_value_table)
                 next = post_list_bs.find('a', text='下一页')
                 if next is None:
                     break
@@ -177,7 +177,7 @@ def get_lease(city, db_code):
 
 
 if __name__ == "__main__":
-    get_lease("焦作", "jiaozuo")
+    get_sale("焦作", "jiaozuo")
 
 #                    _ooOoo_
 #                   o8888888o
