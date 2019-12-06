@@ -6,7 +6,7 @@ import os
 def request(url):
     proxy_host = 'dyn.horocn.com'
     proxy_port = 50000
-    proxy_username = 'MERR1652174473064309'
+    proxy_username = 'MERR165217447306430'
     proxy_pwd = "yqIf4H2Eyx7H"
     proxyMeta = "http://%(user)s:%(pass)s@%(host)s:%(port)s" % {
         "host": proxy_host,
