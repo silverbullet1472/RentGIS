@@ -4,14 +4,68 @@ import re
 from PaidRequests import request
 
 
-def get_sale(city, db_code):
+def create_table(db_code):
+    conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
+    cur = conn.cursor()
+    cur.execute(f"""
+                create table {db_code}_sale_house
+                (
+                    chengshi        varchar(10),
+                    yijiquyu        varchar(10),
+                    erjiquyu        varchar(10),
+                    biaoti          varchar(80),
+                    zongjia         varchar(10),
+                    danjia          varchar(10),
+                    huxing          varchar(10),
+                    mianji          varchar(10),
+                    chaoxiang       varchar(10),
+                    louceng         varchar(10),
+                    jianzhuniandai  varchar(10),
+                    chanquan        varchar(10),
+                    zhuangxiu       varchar(10),
+                    xiaoqumingcheng varchar(40),
+                    xiangxidizhi    varchar(60),
+                    gerenjingjiren  varchar(10),
+                    fangwumiaoshu   varchar(500)
+                );
+                """)
+    conn.commit()
+    cur.execute(f"""
+                create table {db_code}_sale_community
+                (
+                    chengshi        varchar(10),
+                    yijiquyu        varchar(10),
+                    erjiquyu        varchar(10),
+                    xiaoqumingcheng varchar(40),
+                    xiaoqujunjia    varchar(10),
+                    jiagezoushi     varchar(20),
+                    quyushangquan   varchar(20),
+                    xiangxidizhi    varchar(60),
+                    jianzhuleixing  varchar(10),
+                    wuyefeiyong     varchar(20),
+                    chanquanleibie  varchar(10),
+                    rongjilv        varchar(20),
+                    zonghushu       varchar(10),
+                    lvhualv         varchar(20),
+                    jianzhuniandai  varchar(10),
+                    tingchewei      varchar(10),
+                    kaifashang      varchar(50),
+                    wuyegongsi      varchar(50),
+                    zaizushu        varchar(10),
+                    zaishoushu      varchar(10),
+                    tieshu          varchar(10)
+                );
+                """)
+    conn.commit()
+    conn.close()
 
+
+def get_sale(city, db_code):
+    create_table(db_code)
     # 创建数据库连接
     conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
     conn.autocommit = True
     cur = conn.cursor()
-    cur.execute(f"delete from {db_code}_sale_house")
-    cur.execute(f"delete from {db_code}_sale_community")
     # 进入城市选择页面
     index_r = request('http://www.ganji.com/index.htm')
     index_bs = BeautifulSoup(index_r.text, 'lxml')
