@@ -8,47 +8,47 @@ def create_table(db_code):
     cur = conn.cursor()
     cur.execute(f"""
                 create table {db_code}_lease_house(
-                chengshi        varchar(10),
-                yijiquyu        varchar(10),
-                erjiquyu        varchar(10),
-                biaoti          varchar(80),
-                fangzu          varchar(10),
-                huxing          varchar(10),
-                zhengzuhezu     varchar(10),
-                mianji          varchar(10),
-                chaoxiang       varchar(10),
-                louceng         varchar(10),
-                zhuangxiu       varchar(10),
-                xiaoqumingcheng varchar(40),
-                xiangxidizhi    varchar(60),
-                gerenjingjiren  varchar(10),
-                fangwumiaoshu   varchar(500)
+                chengshi        varchar(100),
+                yijiquyu        varchar(100),
+                erjiquyu        varchar(100),
+                biaoti          varchar(100),
+                fangzu          varchar(100),
+                huxing          varchar(100),
+                zhengzuhezu     varchar(100),
+                mianji          varchar(100),
+                chaoxiang       varchar(100),
+                louceng         varchar(100),
+                zhuangxiu       varchar(100),
+                xiaoqumingcheng varchar(100),
+                xiangxidizhi    varchar(100),
+                gerenjingjiren  varchar(100),
+                fangwumiaoshu   varchar(300)
                 );
                 """)
     conn.commit()
     cur.execute(f"""
                 create table {db_code}_lease_community(
-                chengshi        varchar(10),
-                yijiquyu        varchar(10),
-                erjiquyu        varchar(10),
-                xiaoqumingcheng varchar(40),
-                xiaoqujunjia    varchar(10),
-                jiagezoushi     varchar(20),
-                quyushangquan   varchar(20),
-                xiangxidizhi    varchar(60),
-                jianzhuleixing  varchar(10),
-                wuyefeiyong     varchar(20),
-                chanquanleibie  varchar(10),
-                rongjilv        varchar(20),
-                zonghushu       varchar(10),
-                lvhualv         varchar(20),
-                jianzhuniandai  varchar(10),
-                tingchewei      varchar(10),
-                kaifashang      varchar(50),
-                wuyegongsi      varchar(50),
-                zaizushu        varchar(10),
-                zaishoushu      varchar(10),
-                tieshu          varchar(10)
+                chengshi        varchar(100),
+                yijiquyu        varchar(100),
+                erjiquyu        varchar(100),
+                xiaoqumingcheng varchar(100),
+                xiaoqujunjia    varchar(100),
+                jiagezoushi     varchar(100),
+                quyushangquan   varchar(100),
+                xiangxidizhi    varchar(100),
+                jianzhuleixing  varchar(100),
+                wuyefeiyong     varchar(100),
+                chanquanleibie  varchar(100),
+                rongjilv        varchar(100),
+                zonghushu       varchar(100),
+                lvhualv         varchar(100),
+                jianzhuniandai  varchar(100),
+                tingchewei      varchar(100),
+                kaifashang      varchar(100),
+                wuyegongsi      varchar(100),
+                zaizushu        varchar(100),
+                zaishoushu      varchar(100),
+                tieshu          varchar(100)
                 );
                 """)
     conn.commit()
@@ -151,6 +151,7 @@ def get_lease(city, db_code):
                                 print("正则提取时出错:" + str(e))
                             # 小区属性列表 ["小区名称", "小区均价", "价格走势", "区域商圈", "详细地址", "建筑类型", "物业费用", "产权类别", "容积率", "总户数", "绿化率", "建筑年代", "停车位", "开发商", "物业公司", "在租数", "在售数", "帖数"]
                             community_value_list = [city, first_name, second_name] + [community_name, community_price, community_contrast] + community_value_list1 + [community_rent] + [community_sale] + [post_num]
+                            community_value_list = [x[:99] for x in community_value_list]
                             print(community_value_list)
                             community_value_table.append(community_value_list)
                     else:
@@ -160,9 +161,10 @@ def get_lease(city, db_code):
                         house_address = re.sub(r'\s+', '', house_value_list3[2].text)
                     # 经纪人/个人 房屋描述
                     agent = "company" if house_bs.select_one('.user-info-top .license_box') else "individual"
-                    house_comment = re.sub(r'\s+', ' ', house_bs.select_one('.describe .item').get_text(strip=True))
+                    house_comment = re.sub(r'\s+', ' ', house_bs.select_one('.describe .item').get_text(strip=True))[0:299]
                     # 房屋属性列表 ["标题", "房租", "户型", "整租合租", "面积", "朝向","楼层", "装修", "小区名称", "详细地址", "个人/经纪人", "房屋描述"]
-                    house_value_list = house_value_list + [community_name, house_address, agent, house_comment]
+                    house_value_list = house_value_list + [community_name, house_address, agent]
+                    house_value_list = [x[:99] for x in house_value_list] + [house_comment]
                     print(house_value_list)
                     house_value_table.append(house_value_list)
                 print(house_value_table)
