@@ -6,7 +6,7 @@ import os
 def request(url):
     proxy_host = 'dyn.horocn.com'
     proxy_port = 50000
-    proxy_username = 'MERR165217447306430'
+    proxy_username = 'MERR1652174473064309'
     proxy_pwd = "yqIf4H2Eyx7H"
     proxyMeta = "http://%(user)s:%(pass)s@%(host)s:%(port)s" % {
         "host": proxy_host,
@@ -24,35 +24,36 @@ def request(url):
     url = str(url)
     if url.startswith('//'):
         url = url.replace('//', 'http://', 1)
+    extract_num = 0
+    request_num = 0
     while True:
         try:
             r = requests.get(url, timeout=20, headers=headers, proxies=proxies)
-            while r.status_code != 200:
-                print('状态码不为200')
-                time.sleep(0.1)
-                r = requests.get(url, timeout=20, headers=headers, proxies=proxies)
-            while r.text.strip() == '':
-                print('请求结果为空')
-                time.sleep(0.1)
-                r = requests.get(url, timeout=20, headers=headers, proxies=proxies)
-            while '访问过于频繁' in r.text:
-                print('访问过于频繁，请访问链接进行人机验证！')
-                time.sleep(0.1)
-                r = requests.get(url, timeout=20, headers=headers, proxies=proxies)
-            return r
-        except requests.exceptions.ProxyError as e:
-            print("没连WIFI？来看看吧")
-            os.system("pause")
-        except requests.exceptions.ConnectTimeout as e:
-            print("没登录WIFI？来看看吧")
-            os.system("pause")
         except Exception as e:
+            request_num = request_num + 1
+            time.sleep(0.2)
             print(url)
-            print(type(e))
             print(str(e))
-            print('获取页面内容时出错了')
+            print('Requests出错')
+            if request_num > 50:
+                print('Request异常太多次！')
+                os.system("pause")
+        else:
+            if r.status_code != 200 or r.text.strip() == '' or '访问过于频繁' in r.text:
+                extract_num = extract_num + 1
+                time.sleep(0.2)
+                if extract_num > 20:
+                    raise Exception("页面不正常！")
+            else:
+                return r
+
+
 
 
 if __name__ == "__main__":
     while True:
         request("http://www.baidu.com")
+
+
+
+
