@@ -1,3 +1,7 @@
+# @Time    : 2019/12/9 11:04
+# @Author  : Jiaqi Ding
+# @Email   : jiaqiding.ricky@foxmail.com
+
 import psycopg2
 import requests
 import os

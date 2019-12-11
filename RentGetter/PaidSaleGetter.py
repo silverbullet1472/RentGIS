@@ -1,63 +1,13 @@
+# @Time    : 2019/12/9 11:04
+# @Author  : Jiaqi Ding
+# @Email   : jiaqiding.ricky@foxmail.com
+
 import psycopg2
 from bs4 import BeautifulSoup
 import re
-from PaidRequests import request
+from requester import request
 
 
-def create_table(db_code):
-    conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
-    cur = conn.cursor()
-    cur.execute(f"""
-                create table {db_code}_sale_house
-                (
-                    chengshi        varchar(100),
-                    yijiquyu        varchar(100),
-                    erjiquyu        varchar(100),
-                    biaoti          varchar(100),
-                    zongjia         varchar(100),
-                    danjia          varchar(100),
-                    huxing          varchar(100),
-                    mianji          varchar(100),
-                    chaoxiang       varchar(100),
-                    louceng         varchar(100),
-                    jianzhuniandai  varchar(100),
-                    chanquan        varchar(100),
-                    zhuangxiu       varchar(100),
-                    xiaoqumingcheng varchar(100),
-                    xiangxidizhi    varchar(100),
-                    gerenjingjiren  varchar(100),
-                    fangwumiaoshu   varchar(300)
-                );
-                """)
-    conn.commit()
-    cur.execute(f"""
-                create table {db_code}_sale_community
-                (
-                    chengshi        varchar(100),
-                    yijiquyu        varchar(100),
-                    erjiquyu        varchar(100),
-                    xiaoqumingcheng varchar(100),
-                    xiaoqujunjia    varchar(100),
-                    jiagezoushi     varchar(100),
-                    quyushangquan   varchar(100),
-                    xiangxidizhi    varchar(100),
-                    jianzhuleixing  varchar(100),
-                    wuyefeiyong     varchar(100),
-                    chanquanleibie  varchar(100),
-                    rongjilv        varchar(100),
-                    zonghushu       varchar(100),
-                    lvhualv         varchar(100),
-                    jianzhuniandai  varchar(100),
-                    tingchewei      varchar(100),
-                    kaifashang      varchar(100),
-                    wuyegongsi      varchar(100),
-                    zaizushu        varchar(100),
-                    zaishoushu      varchar(100),
-                    tieshu          varchar(100)
-                );
-                """)
-    conn.commit()
-    conn.close()
 
 
 def get_sale(city, db_code):
@@ -195,7 +145,7 @@ def get_sale(city, db_code):
 
 
 if __name__ == "__main__":
-    get_sale("焦作", "jiaozuo")
+    get_sale("白山", "baishantest")
 
 
 #                    _ooOoo_
