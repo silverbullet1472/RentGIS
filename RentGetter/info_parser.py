@@ -43,7 +43,7 @@ def community_parser(community_r):
 
 
 def sale_parser(sale_r):
-    sale_bs = BeautifulSoup(sale_r, 'lxml')
+    sale_bs = BeautifulSoup(sale_r.text, 'lxml')
     # 标题 总价 单价
     sale_title = re.sub(r'\s+', ' ', sale_bs.select_one('.card-top .card-title').get_text(strip=True))
     sale_total = re.sub(r'\s+', ' ', sale_bs.select_one('span.price').get_text(strip=True))
@@ -64,6 +64,8 @@ def sale_parser(sale_r):
             post_num = 'unknown'
             print("正则提取时出错:" + str(e))
         sale_address = re.sub(r'\s+', '', sale_value_list2[1].text)
+        # 小区url
+        community_url = community_link_node['href']
     else:
         sale_value_list3 = sale_bs.select('.er-item .content')
         # 小区名称
@@ -71,12 +73,14 @@ def sale_parser(sale_r):
         # 帖数 详细地址
         post_num = 'unknown'
         sale_address = re.sub(r'\s+', '', sale_value_list3[1].text)
+        # 小区url
+        community_url = ""
     # 经纪人/个人 房屋描述
     agent = "company" if sale_bs.select_one('.user-info-top .license_box') else "individual"
     # 房屋属性列表 ["标题", "总价", "单价", "户型", "面积", "朝向", "楼层", "建筑年代", "产权", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述"]
     sale_comment = re.sub(r'\s+', ' ', sale_bs.select_one('.describe .item').get_text(strip=True))[0:300]
     sale_value_list = [sale_title, sale_total, sale_unit] + sale_value_list1 + [community_name, post_num, sale_address, agent]
-    sale_value_list = [x[:50] for x in sale_value_list] + [sale_comment]
+    sale_value_list = [x[:50] for x in sale_value_list] + [sale_comment] + community_url[0:200]
     return sale_value_list
 
 
@@ -101,16 +105,20 @@ def lease_parser(lease_r):
             post_num = 'unknown'
             print("正则提取时出错:" + str(e))
         lease_address = re.sub(r'\s+', '', lease_value_list2[2].text)
+        # 小区url
+        community_url = community_link_node['href']
     else:
         lease_value_list3 = lease_bs.select('.er-item .content')
         # 小区名称 帖数 详细地址
         community_name = lease_value_list3[0].get_text(strip=True)
         post_num = 'unknown'
         lease_address = re.sub(r'\s+', '', lease_value_list3[2].text)
+        # 小区url
+        community_url = ""
     # 经纪人/个人 房屋描述
     agent = "company" if lease_bs.select_one('.user-info-top .license_box') else "individual"
     lease_comment = re.sub(r'\s+', ' ', lease_bs.select_one('.describe .item').get_text(strip=True))[0:300]
     # 房屋属性列表 ["标题", "房租", "户型", "整租合租", "面积", "朝向","楼层", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述"]
     lease_value_list = lease_value_list + [community_name, post_num, lease_address, agent]
-    lease_value_list = [x[:50] for x in lease_value_list] + [lease_comment]
+    lease_value_list = [x[:50] for x in lease_value_list] + [lease_comment] + community_url[0:200]
     return lease_value_list

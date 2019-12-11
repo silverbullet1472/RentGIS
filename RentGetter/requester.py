@@ -38,9 +38,7 @@ def xun_request(url, allow_exception=False):
     request_num = 0
     while True:
         try:
-            print("开始请求" + url)
             r = requests.get(url, headers=headers, proxies=proxy, verify=False, allow_redirects=False, timeout=timeout)
-            print("请求返回:" + str(r.status_code))
         except Exception as e:
             request_num = request_num + 1
             time.sleep(0.1)
@@ -51,18 +49,18 @@ def xun_request(url, allow_exception=False):
                 os.system("pause")
         else:
             if r.status_code != 200 or r.text.strip() == '' or '访问过于频繁' in r.text or "http://tieba.baidu.com/" in r.text:
-                print("页面不正常:非200、为空、频繁、反爬")
                 extract_num = extract_num + 1
                 time.sleep(0.1)
-                if r.status_code == 302 or r.status_code == 301:
-                    if "antibot" not in r.headers['Location']:
-                        url = r.headers['Location']
-                        url = str(url)
-                        if url.startswith('//'):
-                            url = url.replace('//', 'http://', 1)
-                        print("重定向至" + url)
-                    else:
-                        print("我透，你想把我重定向到验证页面")
+                # 不处理重定向问题
+                # if r.status_code == 302 or r.status_code == 301:
+                #     if "antibot" not in r.headers['Location']:
+                #         url = r.headers['Location']
+                #         url = str(url)
+                #         if url.startswith('//'):
+                #             url = url.replace('//', 'http://', 1)
+                #         print("重定向至" + url)
+                #     else:
+                #         print("我透，你想把我重定向到验证页面")
                 if r.status_code == 404 and allow_exception:
                     raise Exception("404错误，页面不存在")
                 if extract_num > 50:

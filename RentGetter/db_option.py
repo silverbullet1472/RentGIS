@@ -8,7 +8,7 @@ import psycopg2
 def create_table_sale(db_code):
     conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
     cur = conn.cursor()
-    # 房屋属性列表 ["标题", "总价", "单价", "户型", "面积", "朝向", "楼层", "建筑年代", "产权", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述"]
+    # 房屋属性列表 ["标题", "总价", "单价", "户型", "面积", "朝向", "楼层", "建筑年代", "产权", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述" 小区url]
     cur.execute(f"""
                 create table {db_code}_sale
                 (
@@ -28,7 +28,8 @@ def create_table_sale(db_code):
                     tieshu          varchar(50),  
                     xiangxidizhi    varchar(50),
                     gerenjingjiren  varchar(50),
-                    fangwumiaoshu   varchar(300)
+                    fangwumiaoshu   varchar(300),
+                    xiaoqu_url      varchar(200)
                 );
                 """)
     conn.commit()
@@ -38,7 +39,7 @@ def create_table_sale(db_code):
 def create_table_lease(db_code):
     conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
     cur = conn.cursor()
-    # 房屋属性列表 ["标题", "房租", "户型", "整租合租", "面积", "朝向","楼层", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述"]
+    # 房屋属性列表 ["标题", "房租", "户型", "整租合租", "面积", "朝向","楼层", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述" 小区url]
     cur.execute(f"""
                 create table {db_code}_lease(
                 chengshi        varchar(50),
@@ -55,7 +56,8 @@ def create_table_lease(db_code):
                 teishu          varchar(50),
                 xiangxidizhi    varchar(50),
                 gerenjingjiren  varchar(50),
-                fangwumiaoshu   varchar(300)
+                fangwumiaoshu   varchar(300),
+                xiaoqu_url      varchar(200)
                 );
                 """)
     conn.commit()
@@ -97,8 +99,8 @@ def create_table_community(db_code):
 def insert_table_lease(db_code, value_table, city, yiji):
     conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
     cur = conn.cursor()
-    # 房屋属性列表 ["城市", "一级区域", "标题", "房租", "户型", "整租合租", "面积", "朝向","楼层", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述"]
-    cur.executemany(f"insert into {db_code}_lease values ('{city}','{yiji}',%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", value_table)
+    # 房屋属性列表 ["城市", "一级区域", "标题", "房租", "户型", "整租合租", "面积", "朝向","楼层", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述" 小区url]
+    cur.executemany(f"insert into {db_code}_lease values ('{city}','{yiji}',%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", value_table)
     conn.commit()
     conn.close()
 
@@ -106,8 +108,8 @@ def insert_table_lease(db_code, value_table, city, yiji):
 def insert_table_sale(db_code, value_table, city, yiji):
     conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
     cur = conn.cursor()
-    # 房屋属性列表 ["城市", "一级区域", "标题", "总价", "单价", "户型", "面积", "朝向", "楼层", "建筑年代", "产权", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述"]
-    cur.executemany(f"insert into {db_code}_sale values ('{city}','{yiji}',%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", value_table)
+    # 房屋属性列表 ["城市", "一级区域", "标题", "总价", "单价", "户型", "面积", "朝向", "楼层", "建筑年代", "产权", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述" 小区url]
+    cur.executemany(f"insert into {db_code}_sale values ('{city}','{yiji}',%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", value_table)
     conn.commit()
     conn.close()
 
@@ -119,3 +121,23 @@ def insert_table_community(db_code, value_table, city, yiji):
     cur.executemany(f"insert into {db_code}_community values ('{city}','{yiji}',%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", value_table)
     conn.commit()
     conn.close()
+
+def get_yiji_community_list(db_code):
+    conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
+    cur = conn.cursor()
+    # 小区属性列表 ["城市", "一级区域", "小区名称", "小区均价", "价格走势", "区域商圈", "详细地址", "建筑类型", "物业费用", "产权类别", "容积率", "总户数", "绿化率", "建筑年代", "停车位", "开发商", "物业公司", "在租数", "在售数"]
+    cur.executemany(f"select distinct yijiquyu from {db_code}_community")
+    rows = cur.fetchall()
+    conn.commit()
+    conn.close()
+    return rows
+
+def fetch_community_urls(db_code, yijiquyu):
+    conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
+    cur = conn.cursor()
+    # 小区属性列表 ["城市", "一级区域", "小区名称", "小区均价", "价格走势", "区域商圈", "详细地址", "建筑类型", "物业费用", "产权类别", "容积率", "总户数", "绿化率", "建筑年代", "停车位", "开发商", "物业公司", "在租数", "在售数"]
+    cur.executemany(f"select distinct xiaoqu_url  from {db_code}_community where yijiquyu = {yijiquyu}")
+    rows = cur.fetchall()
+    conn.commit()
+    conn.close()
+    return rows

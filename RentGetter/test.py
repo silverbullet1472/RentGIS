@@ -13,7 +13,7 @@ def func(x):
 
 
 if __name__ == "__main__":
-    mp1 = Pool(1)
+    mp1 = Pool()
     mp2 = Pool(4)
     mp3 = Pool(8)
     mp4 = Pool(3)
