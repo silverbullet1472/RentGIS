@@ -45,13 +45,6 @@ def getRect(boundary,
             },
             windowIndex=0,
             stringfy=True):
-    """
-    获取小矩形的左上角和右下角坐标字符串（百度坐标系） 
-    :param bigRect: 关注区域坐标信息
-    :param windowSize:  细分窗口数量信息
-    :param windowIndex:  Z型扫描的小矩形索引号
-    :return: lat,lng,lat,lng
-    """
     offset_x = (boundary['right']['x'] -
                 boundary['left']['x']) / windowSize['xNum']
     offset_y = (boundary['right']['y'] -
@@ -98,15 +91,6 @@ def fetchPOI(keyword, boundary, ws):
             print('请求API接口时发生异常')
             print(e)
             continue
-        # if resp.status_code != 200:
-        #     print('请求状态异常')
-            
-            
-        
-        # 这里为什么会有异常？
-        # "address":"浙江省嘉兴市桐乡市崇福镇茅桥埭村320国道旁",
-        # 返回的结果有未知字符，导致解析失败。
-        # 跳过即可
         try:
             res = json.loads(resp.text)
         except Exception as e:
@@ -200,7 +184,6 @@ def requestBaiduApi(keyword, ws):
 def main():
     # 创建一个工作簿
     wb = Workbook()
-
     for keyword in setting['keyWord']:
         # 根据keyword创建对应的工作表
         ws = wb.create_sheet(title=keyword)
@@ -212,3 +195,9 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # 白山 "left": {"x": 126.127889, "y": 41.36848}, "right": {"x": 128.325033, "y": 42.849945}
+    # 玉树 "left": { "x": 95.704402, "y": 32.029359 }, "right": { "x": 97.742659, "y": 33.779319 }
+    # 焦作 "left": { "x": 112.575229, "y": 34.814122 }, "right": { "x": 113.653416, "y": 35.499762 }
+    # 大理 "left": { "x": 99.982194, "y": 25.426329 }, "right": { "x": 100.443298, "y": 26.079548 }
+    # 衡阳 "left": { "x": 111.546799, "y": 26.104783 }, "right": { "x": 113.289203, "y": 27.472676 }
+    # 北京 "left": { "x": 115.430651, "y": 39.448725 }, "right": { "x": 117.51999, "y": 41.066947 }
