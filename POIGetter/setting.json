@@ -1,0 +1,22 @@
+{
+	"city": "北京市",
+	"keyWord": ["地铁站","公交车站","购物中心"],
+	"boundary": {
+		"left": {
+			"x": 115.430651,
+			"y": 39.448725
+		},
+		"right": {
+			"x": 117.51999,
+			"y": 41.066947
+		}
+	},
+	"windowSize": {
+		"xNum": 10.0,
+		"yNum": 10.0
+	},
+	"apiKey": [
+		"nGh7yT0sewlenF9KeMZndOaAlUYvI9Pc"
+	]
+
+}
