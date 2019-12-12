@@ -77,12 +77,14 @@ def get_lease(city, db_code):
         # 记录并发用时
         t1 = time.time()
         # 新建页面收集池 并发获取页面中所有url
-        mp = Pool()
+        collect_pool = Pool()
         # 获得到所有url并组合成table(table中url_list中含重复url)
-        post_url_table_all = mp.map(func=lease_post_collect, iterable=post_page_list)
+        post_url_table_all = collect_pool.map(func=lease_post_collect, iterable=post_page_list)
         # 对table进行去重
         for post_url_list in post_url_table_all:
             post_url_set.update(post_url_list)
+        collect_pool.close()
+        collect_pool.join()
         print("获取到此城市一级区域:" + first_name + "下所有url set, 总量:" + str(len(post_url_set)))
         print(post_url_set)
         t2 = time.time()
@@ -93,8 +95,11 @@ def get_lease(city, db_code):
         # 对此一级区域所有去重后的url进行收集
         print("开始收集此一级区域信息:" + first_name)
         # 进程池 并行收集
-        post_value_table = mp.map(func=lease_post_extract, iterable=post_url_set)
+        extract_pool = Pool()
+        post_value_table = extract_pool.map(func=lease_post_extract, iterable=post_url_set)
         db_option.insert_table_lease(db_code, post_value_table, city, first_name)
+        extract_pool.close()
+        extract_pool.join()
         print("此一级区域信息入库:" + first_name)
         t2 = time.time()
         print("extract并发用时:"+str((t2 - t1)))

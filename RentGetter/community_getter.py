@@ -36,6 +36,8 @@ def get_community(city, db_code):
         post_extract_pool = Pool()
         post_value_table = post_extract_pool.map(func=community_post_extract, iterable=community_url_set)
         db_option.insert_table_community(db_code, post_value_table, city, yijiquyu)
+        post_extract_pool.close()
+        post_extract_pool.join()
         print("此一级区域信息入库:" + yijiquyu)
         t2 = time.time()
         print("extract并发用时:" + str((t2 - t1)))
