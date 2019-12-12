@@ -127,7 +127,7 @@ def get_yiji_community_list(db_code):
     conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="2819l577l4.wicp.vip", port="42374")
     cur = conn.cursor()
     # 小区属性列表 ["城市", "一级区域", "小区名称", "小区均价", "价格走势", "区域商圈", "详细地址", "建筑类型", "物业费用", "产权类别", "容积率", "总户数", "绿化率", "建筑年代", "停车位", "开发商", "物业公司", "在租数", "在售数"]
-    cur.executemany(f"select distinct yijiquyu from {db_code}_community")
+    cur.executemany(f"select distinct yijiquyu from {db_code}_sale, {db_code}_lease")
     rows = cur.fetchall()
     conn.commit()
     conn.close()
@@ -138,7 +138,7 @@ def fetch_community_urls(db_code, yijiquyu):
     conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="2819l577l4.wicp.vip", port="42374")
     cur = conn.cursor()
     # 小区属性列表 ["城市", "一级区域", "小区名称", "小区均价", "价格走势", "区域商圈", "详细地址", "建筑类型", "物业费用", "产权类别", "容积率", "总户数", "绿化率", "建筑年代", "停车位", "开发商", "物业公司", "在租数", "在售数"]
-    cur.executemany(f"select distinct xiaoqu_url  from {db_code}_community where yijiquyu = {yijiquyu}")
+    cur.executemany(f"select distinct xiaoqu_url  from {db_code}_sale, {db_code}_lease where yijiquyu = {yijiquyu}")
     rows = cur.fetchall()
     conn.commit()
     conn.close()
