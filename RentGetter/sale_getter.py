@@ -15,13 +15,14 @@ def sale_post_extract(post_url):
     # 获取本条post 如有异常允许抛出后pass
     try:
         post_r = xun_request(post_url, allow_exception=True)
+        post_value_list = info_parser.sale_parser(post_r)
+        print("本条post信息:" + str(post_value_list))
     except Exception as e:
         print("获取本条post时出错:" + str(e))
         return [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
     else:
-        post_value_list = info_parser.sale_parser(post_r)
-        print("本条post信息:" + str(post_value_list))
         return post_value_list
+
 
 def sale_post_collect(post_page_url):
     # 获取本页所有post的链接

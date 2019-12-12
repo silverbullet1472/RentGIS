@@ -31,9 +31,9 @@ def xun_request(url, allow_exception=False):
         url = url.replace('//', 'http://', 1)
     # 对于允许抛出异常请求 timeout值设小
     if allow_exception:
-        timeout = 10
+        timeout = 5
     else:
-        timeout = 20
+        timeout = 10
     extract_num = 0
     request_num = 0
     while True:
@@ -44,9 +44,11 @@ def xun_request(url, allow_exception=False):
             time.sleep(0.1)
             print(str(e))
             print('requests出错')
-            if request_num > 50:
-                print('request异常过多')
-                os.system("pause")
+            if request_num > 8:
+                if allow_exception:
+                    raise Exception('request异常过多')
+                else:
+                    os.system("pause")
         else:
             if r.status_code != 200 or r.text.strip() == '' or '访问过于频繁' in r.text or "http://tieba.baidu.com/" in r.text:
                 extract_num = extract_num + 1
@@ -63,9 +65,11 @@ def xun_request(url, allow_exception=False):
                 #         print("我透，你想把我重定向到验证页面")
                 if r.status_code == 404 and allow_exception:
                     raise Exception("404错误，页面不存在")
-                if extract_num > 50:
-                    print('extract异常过多')
-                    os.system("pause")
+                if extract_num > 8:
+                    if allow_exception:
+                        raise Exception('extract异常过多')
+                    else:
+                        os.system("pause")
             else:
                 return r
 
