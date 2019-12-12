@@ -6,7 +6,7 @@ import lease_getter
 import sale_getter
 
 if __name__ == "__main__":
-    city_list = [["白山", "baishan"], ["玉树", "yushu"], ["焦作", "jiaozuo"],  ["衡阳", "hengyang"], ["大理", "dali"], ["北京", "beijing"]]
+    city_list = [["白山", "baishan"], ["玉树", "yushu"], ["焦作", "jiaozuo"]]
     for city in city_list:
         lease_getter.get_lease(city[0], city[1])
         print("租房爬取完成" + city[0])
@@ -31,4 +31,4 @@ if __name__ == "__main__":
 # ======`-.____`-.___\_____/___.-`____.-'======
 #                    `=---='
 #          佛祖保佑             永无BUG
-#
+#,  ["衡阳", "hengyang"], ["大理", "dali"], ["北京", "beijing"]

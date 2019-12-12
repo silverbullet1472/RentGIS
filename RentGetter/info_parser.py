@@ -80,7 +80,7 @@ def sale_parser(sale_r):
     # 房屋属性列表 ["标题", "总价", "单价", "户型", "面积", "朝向", "楼层", "建筑年代", "产权", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述"]
     sale_comment = re.sub(r'\s+', ' ', sale_bs.select_one('.describe .item').get_text(strip=True))[0:300]
     sale_value_list = [sale_title, sale_total, sale_unit] + sale_value_list1 + [community_name, post_num, sale_address, agent]
-    sale_value_list = [x[:50] for x in sale_value_list] + [sale_comment] + community_url[0:200]
+    sale_value_list = [x[:50] for x in sale_value_list] + [sale_comment] + [community_url[0:200]]
     return sale_value_list
 
 
@@ -120,5 +120,5 @@ def lease_parser(lease_r):
     lease_comment = re.sub(r'\s+', ' ', lease_bs.select_one('.describe .item').get_text(strip=True))[0:300]
     # 房屋属性列表 ["标题", "房租", "户型", "整租合租", "面积", "朝向","楼层", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述"]
     lease_value_list = lease_value_list + [community_name, post_num, lease_address, agent]
-    lease_value_list = [x[:50] for x in lease_value_list] + [lease_comment] + community_url[0:200]
+    lease_value_list = [x[:50] for x in lease_value_list] + [lease_comment] + [community_url[0:200]]
     return lease_value_list
