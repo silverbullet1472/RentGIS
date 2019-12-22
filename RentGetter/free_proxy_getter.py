@@ -6,6 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import psycopg2
+from requester import ultimate_request
 
 
 def get_ip():
@@ -21,14 +22,13 @@ def get_ip():
     for i in range(1, 6):
         # 通过connect方法创建数据库连接
         conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
+        conn.autocommit = True
         # 创建cursor以访问数据库
         cur = conn.cursor()
         url = 'https://www.xicidaili.com/nn/' + str(i)
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Mobile Safari/537.36'
-        }
         try:
-            ip_res = requests.get(url, timeout=3, headers=headers)
+            ip_res = ultimate_request(url)
+            print(ip_res)
         except Exception as e:
             print("get_ip:UrlRequest:" + str(e))
             print("get_ip:UrlRequest:ip_restart Get Ip!")
@@ -50,7 +50,7 @@ def get_ip():
                 # 测试代理
                 else:
                     try:
-                        test_url = 'http://www.ganji.com/index.htm'
+                        test_url = 'http://bj.ganji.com/beitaipingzhuang/zufang/pn4/'
                         proxy = {type: type + '://' + ip + ':' + port}
                         test_res = requests.get(test_url, proxies=proxy, timeout=3)
                     except Exception as e:
@@ -62,11 +62,10 @@ def get_ip():
                             print("check_ip:succeeded & inserted:" + ip)
                         else:
                             print("check_ip:failed:can not connect to Ganji")
-            # 提交事务
-            conn.commit()
             # 关闭连接
             conn.close()
 
 
 if __name__ == "__main__":
+    # db_option.create_table_proxy()
     get_ip()

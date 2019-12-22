@@ -6,10 +6,10 @@ import re
 from bs4 import BeautifulSoup
 
 
-def community_parser(community_r):
+def community_parser(community_r, url):
     community_bs = BeautifulSoup(community_r.text, 'lxml')
     # 小区名称
-    community_name = community_bs.select_one('.card - top.card - title').get_text(strip=True)
+    community_name = community_bs.select_one('.card-top .card-title').get_text(strip=True)
     # 小区均价
     community_price = community_bs.select_one('span.price').contents[0]
     # 价格走势
@@ -38,11 +38,11 @@ def community_parser(community_r):
         print("在售正则提取时出错:" + str(e))
     # 小区属性列表 ["小区名称", "小区均价", "价格走势", "区域商圈", "详细地址", "建筑类型", "物业费用", "产权类别", "容积率", "总户数", "绿化率", "建筑年代", "停车位", "开发商", "物业公司", "在租数", "在售数"]
     community_value_list = [community_name, community_price, community_contrast] + community_value_list1 + [community_rent] + [community_sale]
-    community_value_list = [x[:50] for x in community_value_list]
+    community_value_list = [x[:50] for x in community_value_list] + [url[0:200]]
     return community_value_list
 
 
-def sale_parser(sale_r):
+def sale_parser(sale_r, url):
     sale_bs = BeautifulSoup(sale_r.text, 'lxml')
     # 标题 总价 单价
     sale_title = re.sub(r'\s+', ' ', sale_bs.select_one('.card-top .card-title').get_text(strip=True))
@@ -80,11 +80,11 @@ def sale_parser(sale_r):
     # 房屋属性列表 ["标题", "总价", "单价", "户型", "面积", "朝向", "楼层", "建筑年代", "产权", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述"]
     sale_comment = re.sub(r'\s+', ' ', sale_bs.select_one('.describe .item').get_text(strip=True))[0:300]
     sale_value_list = [sale_title, sale_total, sale_unit] + sale_value_list1 + [community_name, post_num, sale_address, agent]
-    sale_value_list = [x[:50] for x in sale_value_list] + [sale_comment] + [community_url[0:200]]
+    sale_value_list = [x[:50] for x in sale_value_list] + [sale_comment] + [url[0:200]] + [community_url[0:200]]
     return sale_value_list
 
 
-def lease_parser(lease_r):
+def lease_parser(lease_r,url):
     lease_bs = BeautifulSoup(lease_r.text, 'lxml')
     # 标题 房租
     lease_title = re.sub(r'\s+', ' ', lease_bs.select_one('.card-top .card-title').get_text(strip=True))
@@ -120,5 +120,5 @@ def lease_parser(lease_r):
     lease_comment = re.sub(r'\s+', ' ', lease_bs.select_one('.describe .item').get_text(strip=True))[0:300]
     # 房屋属性列表 ["标题", "房租", "户型", "整租合租", "面积", "朝向","楼层", "装修", "小区名称", "帖数", "详细地址", "个人/经纪人", "房屋描述"]
     lease_value_list = lease_value_list + [community_name, post_num, lease_address, agent]
-    lease_value_list = [x[:50] for x in lease_value_list] + [lease_comment] + [community_url[0:200]]
+    lease_value_list = [x[:50] for x in lease_value_list] + [lease_comment] + [url[0:200]] + [community_url[0:200]]
     return lease_value_list

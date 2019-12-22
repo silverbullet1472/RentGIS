@@ -1,0 +1,22 @@
+{
+    "origin":{
+        "file":"*/*/武汉.xls",
+        "id":"IDpid",
+        "name":"地址",
+        "lon":"经度",
+        "lat":"纬度"
+    },
+    "destination":{
+        "dir":"数据整合/poi/武汉市",
+        "id":"FID",
+        "name":"名称",
+        "lon":"经度_wgs84",
+        "lat":"纬度_wgs84"
+    },
+    "boundary":1200,
+    "output":"输出目录",
+	"apiKey": [
+        "yjWRvyk6nAGGzyADwS264VVQGK17Iaqv"
+	]
+
+}
