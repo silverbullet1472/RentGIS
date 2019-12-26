@@ -1041,7 +1041,7 @@ def ultimate_request(url, allow_exception=False, referer=None):
                     raise Exception('request异常过多')
                 else:
                     if request_num > 20:
-                        os.system("pause")
+                        time.sleep(100)
         else:
             if r.status_code != 200:
                 time.sleep(func/10)
@@ -1081,14 +1081,16 @@ def ultimate_request(url, allow_exception=False, referer=None):
             # print("这个链接出错了:代理编号:" + str(int((func-45) > 0)))
             if frequent_num > 0:
                 print("过于频繁 休息一下,url:" + str(url))
-                os.system("pause")
-            if extract_num > 3:
+                # os.system("pause")
+                time.sleep(1900)
+            if extract_num > 10:
                 if allow_exception:
                     print("异常过多,即将抛出,status_code:" + str(r.status_code) + " 页面url:" + str(url) + " 页面text" + str(r.text))
                     raise Exception('extract异常过多')
                 else:
                     if extract_num > 20:
-                        os.system("pause")
+                        time.sleep(100)
+                        # os.system("pause")
 
 
 def xici_request(url, timeout):

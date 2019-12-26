@@ -1,9 +1,10 @@
 from lease_getter import get_lease
 from sale_getter import get_sale
+from db_option import *
 import time
 
 if __name__ == "__main__":
-    get_sale("宜昌", "yichang", 11)
+    get_sale("北京", "beijingv2", 0, 1)
 
     # 宜昌 租房 3进程并发 用时 938条/136s
     # 租房 4进程并发 用时: 927条/108s

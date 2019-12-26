@@ -54,7 +54,7 @@ def create_table_lease(db_code):
                 louceng         varchar(50),
                 zhuangxiu       varchar(50),
                 xiaoqumingcheng varchar(50),
-                teishu          varchar(50),
+                tieshu          varchar(50),
                 xiangxidizhi    varchar(50),
                 gerenjingjiren  varchar(50),
                 fangwumiaoshu   varchar(300),
@@ -160,3 +160,4 @@ def fetch_community_urls(db_code, yijiquyu):
     conn.commit()
     conn.close()
     return rows
+
