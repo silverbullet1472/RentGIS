@@ -81,7 +81,7 @@ def get_lease(city, db_code, start=None, end=None):
                 total_page = 1
             print("此二级区域总页数:" + str(total_page))
             # 拼接得到此二级区域所有页面url
-            post_page_list = post_page_list + [second_index_href + "pn" + str(x) + "/" for x in range(1, int(total_page) + 1)]
+            post_page_list = post_page_list + [second_index_href + "pn" + str(x) for x in range(1, int(total_page) + 1)]
         print("获取到此城市一级区域:" + first_name + "之下二级区域中所有页面, 总量:" + str(len(post_page_list)))
         print(post_page_list)
         # 新建set set内存储此一级区域中去重后url

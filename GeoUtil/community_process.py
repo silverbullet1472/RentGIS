@@ -125,10 +125,8 @@ def community_add_factor_cols():
                           ADD COLUMN count_xiaoxue             varchar(20),
                           ADD COLUMN min_time_gaoxiao          varchar(20),
                           ADD COLUMN count_gaoxiao             varchar(20),
-                          ADD COLUMN min_time_sanjiayiyuan     varchar(20),
-                          ADD COLUMN count_sanjiayiyuan        varchar(20),
-                          ADD COLUMN min_time_putongyiyuan     varchar(20),
-                          ADD COLUMN count_putongyiyuan        varchar(20),
+                          ADD COLUMN min_time_yiyuan           varchar(20),
+                          ADD COLUMN count_yiyuan              varchar(20),
                           ADD COLUMN min_time_jingdian         varchar(20),
                           ADD COLUMN count_jingdian            varchar(20),
                           ADD COLUMN min_time_kaifang          varchar(20),
@@ -192,7 +190,7 @@ def community_add_min_time(where_clause, col):
             iters = ceil(len(destination_list) / 50)
             duration = 10000
             for i in range(0, iters):
-                time.sleep(1.1)
+                time.sleep(1.2)
                 # 起点经纬度
                 origin_loc = community_bd_lat + "," + community_bd_lon
                 # 终点经纬度
@@ -205,6 +203,8 @@ def community_add_min_time(where_clause, col):
                     f'destinations={destination_loc_list_str}&'
                     f'coord_type=bd09ll&'
                     f'ak=4gvdE4GPNH0kXgpz2j4uVtW9frjUNFe5')
+                # 4gvdE4GPNH0kXgpz2j4uVtW9frjUNFe5
+                # CzoxjqGE1GpguHyWj48zaDwmrh47lrkX
                 res = requests.get(url)
                 js = json.loads(res.text)
                 if js['status'] != 0:
@@ -214,7 +214,7 @@ def community_add_min_time(where_clause, col):
                 for route in routes:
                     if duration > route['duration']['value']:
                         duration = route['duration']['value']
-                print("循环次数:" + str(i + 1) + "检验点数:" + str(len(destination_loc_list)) + " 离此小区:" + community[2] + " 目前最近步行POI时长:" + str(duration))
+                print("查询子句:" + str(where_clause) + " 循环次数:" + str(i + 1) + " 检验点数:" + str(len(destination_loc_list)) + " 离此小区:" + community[2] + " 目前最近步行POI时长:" + str(duration))
             # # 求最小值得到索引
             # min_index = distance_list.index(min(distance_list))
             # # 起点经纬度
@@ -244,11 +244,11 @@ def community_add_min_time(where_clause, col):
     cur.execute("""
                        DELETE FROM yichang_community_processed
                        """)
-    # 前24为原始列 后17为算路因子列
+    # 前24为原始列 后15为算路因子列
     cur.executemany("""
                        insert into yichang_community_processed values
                        (%s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,
-                        %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s
+                        %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,%s
                         )
                        """
                     , community_new_table)
@@ -306,7 +306,7 @@ def community_add_count(where_clause, col):
             iters = ceil(len(destination_list)/50)
             count = 0
             for i in range(0, iters):
-                time.sleep(1.1)
+                time.sleep(1.2)
                 # 起点经纬度
                 origin_loc = community_bd_lat + "," + community_bd_lon
                 # 终点经纬度
@@ -318,7 +318,7 @@ def community_add_count(where_clause, col):
                     f'origins={origin_loc}&'
                     f'destinations={destination_loc_list_str}&'
                     f'coord_type=bd09ll&'
-                    f'ak=4gvdE4GPNH0kXgpz2j4uVtW9frjUNFe5')
+                    f'ak=CzoxjqGE1GpguHyWj48zaDwmrh47lrkX')
                 res = requests.get(url)
                 js = json.loads(res.text)
                 if js['status'] != 0:
@@ -329,7 +329,7 @@ def community_add_count(where_clause, col):
                     duration = route['duration']['value']
                     if duration <= 900:
                         count = count + 1
-                print("循环次数:" + str(i + 1) + "检验点数:" + str(len(destination_loc_list)) + " 离此小区:" + community[2] + " 目前15分钟内的POI个数:" + str(count))
+                print("查询子句:" + str(where_clause) + " 循环次数:" + str(i + 1) + " 检验点数:" + str(len(destination_loc_list)) + " 离此小区:" + community[2] + " 目前15分钟内的POI个数:" + str(count))
         else:
             count = 0 # 在1500m范围内根本就没有
         community[col] = count
@@ -338,11 +338,11 @@ def community_add_count(where_clause, col):
     cur.execute("""
                        DELETE FROM yichang_community_processed
                        """)
-    # 前24为原始列 后17为算路因子列
+    # 前24为原始列 后15为算路因子列
     cur.executemany("""
                        insert into yichang_community_processed values
                        (%s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,
-                        %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s
+                        %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,%s
                         )
                        """
                     , community_new_table)
@@ -354,5 +354,21 @@ if __name__ == "__main__":
     # community_add_gongjiaoshijian()
     # community_add_location()
     # community_add_factor_cols()
-    community_add_min_time("leixing = '公交车站'", 24)
+    # community_add_min_time("leixing = '公交车站'", 24)
+    # community_add_min_time("leixing = '中学'", 25)
     # community_add_count("leixing = '中学'", 26)
+    # community_add_min_time("leixing = '小学'", 27)
+    # community_add_count("leixing = '小学'", 28)
+    # community_add_min_time("leixing = '高等院校'", 29)
+    # community_add_count("leixing = '高等院校'", 30)
+    # community_add_min_time("leixing = '综合医院'", 31)
+    # community_add_count("leixing = '综合医院'", 32)
+    # community_add_min_time("leixing = '文化古迹' OR leixing = '风景区'", 33)
+    # community_add_count("leixing = '文化古迹' OR leixing = '风景区'", 34)
+    community_add_min_time("leixing = '公园' OR leixing = '休闲广场' OR leixing = '植物园' OR leixing = '体育场馆' ", 35)
+    community_add_count("leixing = '公园' OR leixing = '休闲广场' OR leixing = '植物园' OR leixing = '体育场馆'", 36)
+    community_add_min_time("leixing = '百货商场' OR leixing = '购物中心' OR leixing = '集市'", 37)
+    community_add_count("leixing = '百货商场' OR leixing = '购物中心' OR leixing = '集市'", 38)
+    # 公园休闲广场/体育场馆/植物园
+    # 百货商场 / 购物中心 / 集市
+

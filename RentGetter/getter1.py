@@ -4,7 +4,7 @@ from db_option import *
 import time
 
 if __name__ == "__main__":
-    get_sale("北京", "beijingv2", 0, 1)
+    get_sale("焦作", "jiaozuo")
 
     # 宜昌 租房 3进程并发 用时 938条/136s
     # 租房 4进程并发 用时: 927条/108s

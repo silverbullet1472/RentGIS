@@ -9,6 +9,7 @@ from multiprocessing import Pool
 import datetime
 from tqdm import tqdm
 import time
+import os
 
 
 def community_post_extract(post_url):
@@ -31,7 +32,6 @@ def get_community(city, db_code, start=None, end=None):
     print("进入一级区域:"+str(yijiquyu_list))
     for yijiquyu in yijiquyu_list[start:end]:
         community_url_set = db_option.fetch_community_urls(db_code, yijiquyu[0])
-        print(community_url_set)
         print("此一级区域所有小区总量:" + str(len(community_url_set)))
         # 记录并发用时
         print(datetime.datetime.now().strftime('%H:%M:%S'))
