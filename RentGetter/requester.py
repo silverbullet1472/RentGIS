@@ -1022,7 +1022,7 @@ def ultimate_request(url, allow_exception=False, referer=None):
     request_num = 0
     frequent_num = 0
     while True:
-        func = random.uniform(50, 60)
+        func = random.uniform(5, 6)
         try:
             # if func <= 45:
             #     r = kuai_request(url, timeout, referer)
@@ -1031,7 +1031,7 @@ def ultimate_request(url, allow_exception=False, referer=None):
             # elif 10 <= func <= 10:
             #     r = xun_request(url, timeout)
             # else:
-            r = original_request(url, timeout)
+            r = yiniu_request(url, timeout)
         except Exception as e:
             request_num = request_num + 1
             print(str(e))
@@ -1040,7 +1040,7 @@ def ultimate_request(url, allow_exception=False, referer=None):
                 if allow_exception:
                     raise Exception('request异常过多')
                 else:
-                    if request_num > 20:
+                    if request_num > 50:
                         print("request失败过多")
                         os.system("pause")
         else:
@@ -1082,7 +1082,7 @@ def ultimate_request(url, allow_exception=False, referer=None):
             # print("这个链接出错了:代理编号:" + str(int((func-45) > 0)))
             if frequent_num > 5:
                 print("过于频繁 休息一下,url:" + str(url))
-                os.system("pause")
+                time.sleep(3)
             if extract_num > 10:
                 if allow_exception:
                     print("异常过多,即将抛出,status_code:" + str(r.status_code) + " 页面url:" + str(url) + " 页面text" + str(r.text))
@@ -1169,11 +1169,11 @@ def yiniu_request(url, timeout, referer=None):
     ua = random.choice(UA_list)
     tunnel = random.randint(1,10000)
     # 代理服务器
-    proxyHost = "u3884.5.tn.16yun.cn"
-    proxyPort = "6441"
+    proxyHost = "u3884.b5.t.16yun.cn"
+    proxyPort = "6460"
     # 代理隧道验证信息
-    proxyUser = "16GKSZQK"
-    proxyPass = "865593"
+    proxyUser = "16KJGNTF"
+    proxyPass = "510768"
     proxyMeta = "http://%(user)s:%(pass)s@%(host)s:%(port)s" % {
         "host": proxyHost,
         "port": proxyPort,

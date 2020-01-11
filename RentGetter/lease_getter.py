@@ -13,7 +13,7 @@ import time
 
 
 def lease_post_extract(url_list):
-    time.sleep(3)
+    time.sleep(1)
     # 获取本条post 如有异常允许抛出后pass
     try:
         post_r = ultimate_request(url_list[1], allow_exception=True, referer=url_list[0])
@@ -27,7 +27,7 @@ def lease_post_extract(url_list):
 
 
 def lease_post_collect(post_page_url):
-    time.sleep(4)
+    time.sleep(1)
     # 获取本页所有post的链接
     page_num = int(post_page_url[-1])
     if page_num > 1:

@@ -15,7 +15,7 @@ import time
 
 
 def sale_post_extract(url_list):
-    time.sleep(10)
+    time.sleep(2)
     # 获取本条post 如有异常允许抛出后pass
     try:
         post_r = ultimate_request(url_list[1], allow_exception=True, referer=url_list[0])

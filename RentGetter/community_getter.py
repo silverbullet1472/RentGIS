@@ -13,9 +13,8 @@ import os
 
 
 def community_post_extract(post_url):
-    time.sleep(10)
     # 获取本条post 如有异常允许抛出后pass
-    if post_url:
+    if post_url[0]:
         try:
             post_r = ultimate_request(post_url[0], allow_exception=True)
             post_value_list = info_parser.community_parser(post_r, post_url[0])
@@ -27,11 +26,17 @@ def community_post_extract(post_url):
             return post_value_list
 
 
+
 def get_community(city, db_code, start=None, end=None):
     yijiquyu_list = db_option.get_yiji_list(db_code)
     print("进入一级区域:"+str(yijiquyu_list))
     for yijiquyu in yijiquyu_list[start:end]:
-        community_url_set = db_option.fetch_community_urls(db_code, yijiquyu[0])
+        old_community_url_set = db_option.fetch_community_urls(db_code, yijiquyu[0])
+        community_url_set = []
+        for community in old_community_url_set:
+            if community[0]:
+                community_url_set.append(community)
+        print(community_url_set)
         print("此一级区域所有小区总量:" + str(len(community_url_set)))
         # 记录并发用时
         print(datetime.datetime.now().strftime('%H:%M:%S'))
@@ -40,13 +45,15 @@ def get_community(city, db_code, start=None, end=None):
         print("开始收集此一级区域信息:" + yijiquyu[0])
         post_value_table = []
         # 新建进程池 并行收集
-        with Pool(1) as extract_pool:
+        with Pool(4) as extract_pool:
             length = len(community_url_set)
             with tqdm(total=length, miniters=1, mininterval=0) as extract_bar:
                 for i, post_value_list in tqdm(enumerate(extract_pool.imap_unordered(func=community_post_extract, iterable=community_url_set))):
                     post_value_table.append(post_value_list)
+                    print(post_value_table)
                     extract_bar.update()
                     print("任务进度:" + str(i) + "/" + str(length))
+        print(post_value_table)
         db_option.insert_table_community(db_code, post_value_table, city, yijiquyu[0])
         print("此一级区域信息入库:" + yijiquyu[0])
         print(datetime.datetime.now().strftime('%H:%M:%S'))
