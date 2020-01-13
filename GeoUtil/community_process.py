@@ -350,6 +350,46 @@ def community_add_count(where_clause, col):
     conn.close()
 
 
+def add_gcj_location():
+    conn = psycopg2.connect(dbname="rent_db", user="postgres", password="postgresql", host="127.0.0.1", port="5432")
+    cur = conn.cursor()
+    # 2 地理编码得到gcj坐标
+    cur.execute("""
+                     SELECT * FROM yichang_community_processed;
+                     """)
+    conn.commit()
+    rows = cur.fetchall()
+    # 遍历所有记录 调用地理编码
+    value_table = []
+    for row in tqdm(rows):
+        entry= list(row)
+        lon = entry[20]
+        lat = entry[21]
+        location = bd09_to_gcj02(float(lon), float(lat))
+        entry.append(str(location[0])[0:20])  # 因为数据库字段是字符 转一下
+        entry.append(str(location[1])[0:20])
+        value_table.append(entry)
+    print(value_table)
+    # 插入新表
+    cur.execute("""
+                   ALTER TABLE yichang_community_processed ADD COLUMN gcj_lon varchar(20), ADD COLUMN gcj_lat varchar(20);
+                   """)
+    conn.commit()
+    cur.execute("""
+                   DELETE FROM yichang_community_processed
+                   """)
+    conn.commit()
+    cur.executemany("""
+                   insert into yichang_community_processed values (
+                   %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,
+                   %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s,%s, %s,%s
+                   )
+                   """
+                    , value_table)
+    conn.commit()
+    conn.close()
+
+
 if __name__ == "__main__":
     # community_add_gongjiaoshijian()
     # community_add_location()
@@ -365,10 +405,10 @@ if __name__ == "__main__":
     # community_add_count("leixing = '综合医院'", 32)
     # community_add_min_time("leixing = '文化古迹' OR leixing = '风景区'", 33)
     # community_add_count("leixing = '文化古迹' OR leixing = '风景区'", 34)
-    community_add_min_time("leixing = '公园' OR leixing = '休闲广场' OR leixing = '植物园' OR leixing = '体育场馆' ", 35)
-    community_add_count("leixing = '公园' OR leixing = '休闲广场' OR leixing = '植物园' OR leixing = '体育场馆'", 36)
-    community_add_min_time("leixing = '百货商场' OR leixing = '购物中心' OR leixing = '集市'", 37)
-    community_add_count("leixing = '百货商场' OR leixing = '购物中心' OR leixing = '集市'", 38)
+    # community_add_min_time("leixing = '公园' OR leixing = '休闲广场' OR leixing = '植物园' OR leixing = '体育场馆' ", 35)
+    # community_add_count("leixing = '公园' OR leixing = '休闲广场' OR leixing = '植物园' OR leixing = '体育场馆'", 36)
+    # community_add_min_time("leixing = '百货商场' OR leixing = '购物中心' OR leixing = '集市'", 37)
+    # community_add_count("leixing = '百货商场' OR leixing = '购物中心' OR leixing = '集市'", 38)
     # 公园休闲广场/体育场馆/植物园
     # 百货商场 / 购物中心 / 集市
-
+    add_gcj_location()
